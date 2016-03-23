@@ -1,0 +1,4 @@
+Options Indexes
+php_flag display_errors on
+AddCharset ISO-8859-1 .php
+AddCharset UTF8 .php

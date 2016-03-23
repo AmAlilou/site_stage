@@ -1,0 +1,165 @@
+<?php
+set_include_path ( "." . PATH_SEPARATOR . ".." );
+if (! isset ( $ROOT_PATH ))
+	require_once ("inc/main.inc.php");
+require_once ("inc/PHPLib/template.inc");
+// require_once("class/MenuBuilder.class.php");
+class XHTMLBuilder {
+	private static $MAIN_TEMPLATE_PATH = "/templates/mainTemplate.tpl";
+	private $_content = "";
+	private $_javascript = "";
+	private $_heading = "";
+	private $_onLoadJavascript = "";
+	private static $_instance = null;
+	private function __construct() {
+		$this->_javascript = "
+function writeMail(txt, loginArray, serverArray){
+    var m = '<a href=\"mailto:';
+    for(i=0; i<loginArray.length; i++){
+        if(i!=0)
+            m += ',';
+        m += loginArray[i]+'@'+serverArray[i];
+    }
+    document.write(m+'\">'+txt+'<a/>');
+}
+";
+		$this->_heading = '    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>' . XHTMLBuilder::getText ( "Site des stages de la MIAGe" ) . '</title>
+    <link href="' . (isset ( $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] ) ? $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] : $GLOBALS ['URL_ROOT_PATH']) . '/style/bootstrap/css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+    <link href="' . (isset ( $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] ) ? $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] : $GLOBALS ['URL_ROOT_PATH']) . '/style/header-default.css" type="text/css" rel="stylesheet"/>
+    <link href="' . (isset ( $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] ) ? $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] : $GLOBALS ['URL_ROOT_PATH']) . '/style/styles.css" type="text/css" rel="stylesheet"/>
+    <link href="' . (isset ( $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] ) ? $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] : $GLOBALS ['URL_ROOT_PATH']) . '/style/bootstrap/plugins/font-awesome/css/font-awesome.min.css" type="text/css" rel="stylesheet"/>
+    <link href="' . (isset ( $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] ) ? $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] : $GLOBALS ['URL_ROOT_PATH']) . '/gnoocalendar.css" type="text/css" rel="stylesheet"/>
+	<script src="' . (isset ( $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] ) ? $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] : $GLOBALS ['URL_ROOT_PATH']) . '/style/bootstrap/js/bootstrap.min.js" type="text/javascript"/>
+    ';
+	}
+	public static function getInstance() {
+		if (XHTMLBuilder::$_instance == null)
+			XHTMLBuilder::$_instance = new XHTMLBuilder ();
+		return XHTMLBuilder::$_instance;
+	}
+	public function addContent($content) {
+		// $this->_content .= XHTMLBuilder::__computeText($content);
+		$this->_content .= $content;
+	}
+	public function addJavascript($javascript) {
+		$this->_javascript .= $javascript;
+	}
+	public function addHeading($head) {
+		$this->_heading .= $head;
+	}
+	public function addOnLoadJavascript($javascript) {
+		$this->_onLoadJavascript .= $javascript;
+	}
+	public static function getText($text) {
+		Debugger::getInstance ()->traceBDDObject ( "<i>Appel de XHTMLBuilder::getText($text)</i><br/>" );
+		$text = XHTMLBuilder::__computeText ( $text );
+		return $text;
+	}
+	private static function __computeText($text) {
+		Debugger::getInstance ()->traceBDDObject ( "<i>Appel de XMLBuilder::__computeText()</i><br/>" );
+		$res = str_replace ( "&nbsp;", "&#160;", $text );
+		
+		// Caractères spéciaux en base
+		$res = str_replace ( "Ã‰", "&#201;", $res ); // É
+		$res = str_replace ( "Ã©", "&#233;", $res ); // é
+		$res = str_replace ( "Ãˆ", "&#200;", $res ); // È
+		$res = str_replace ( "Ã¨", "&#232;", $res ); // è
+		$res = str_replace ( "Ã‹", "&#203;", $res ); // Ë
+		$res = str_replace ( "Ã«", "&#235;", $res ); // ë
+		$res = str_replace ( "Ã€", "&#192;", $res ); // À
+		$res = str_replace ( "Ã‚", "&#194;", $res ); // Â
+		$res = str_replace ( "Ã¢", "&#226;", $res ); // â
+		$res = str_replace ( "Ã›", "&#219;", $res ); // Û
+		$res = str_replace ( "Ã»", "&#251;", $res ); // û
+		$res = str_replace ( "Ã™", "&#217;", $res ); // Ù
+		$res = str_replace ( "Ã¹", "&#249;", $res ); // ù
+		$res = str_replace ( "ÃŠ", "&#202;", $res ); // Ê
+		$res = str_replace ( "Ãª", "&#234;", $res ); // ê
+		$res = str_replace ( "ÃŽ", "&#206;", $res ); // Î
+		$res = str_replace ( "Ã®", "&#238;", $res ); // î
+		$res = str_replace ( "Ã\”", "&#212;", $res ); // Ô
+		$res = str_replace ( "Ã´", "&#244;", $res ); // ô
+		$res = str_replace ( "Ã‡", "&#199;", $res ); // Ç
+		$res = str_replace ( "Ã§", "&#231;", $res ); // ç
+		$res = str_replace ( "Ã?", "&#207;", $res ); // Ï
+		$res = str_replace ( "Ã¯", "&#239;", $res ); // ï
+		$res = str_replace ( "â„¢", "&#153;", $res ); // ™
+		$res = str_replace ( "â€™", "&#39;", $res ); // '
+		$res = str_replace ( "â‚¬", "&#128;", $res ); // €
+		$res = str_replace ( "Ã", "&#224;", $res ); // à
+		                                         
+		// Caractères spéciaux "non unicode"
+		$res = str_replace ( "É", "&#201;", $res );
+		$res = str_replace ( "é", "&#233;", $res );
+		$res = str_replace ( "È", "&#200;", $res );
+		$res = str_replace ( "è", "&#232;", $res );
+		$res = str_replace ( "Ë", "&#203;", $res );
+		$res = str_replace ( "ë", "&#235;", $res );
+		$res = str_replace ( "À", "&#192;", $res );
+		$res = str_replace ( "à", "&#224;", $res );
+		$res = str_replace ( "Â", "&#194;", $res );
+		$res = str_replace ( "â", "&#226;", $res );
+		$res = str_replace ( "Û", "&#219;", $res );
+		$res = str_replace ( "û", "&#251;", $res );
+		$res = str_replace ( "Ù", "&#217;", $res );
+		$res = str_replace ( "ù", "&#249;", $res );
+		$res = str_replace ( "Ê", "&#202;", $res );
+		$res = str_replace ( "ê", "&#234;", $res );
+		$res = str_replace ( "Î", "&#206;", $res );
+		$res = str_replace ( "î", "&#238;", $res );
+		$res = str_replace ( "Ô", "&#212;", $res );
+		$res = str_replace ( "ô", "&#244;", $res );
+		$res = str_replace ( "Ç", "&#199;", $res );
+		$res = str_replace ( "ç", "&#231;", $res );
+		$res = str_replace ( "Ï", "&#207;", $res );
+		$res = str_replace ( "ï", "&#239;", $res );
+		$res = str_replace ( "™", "&#153;", $res );
+		$res = str_replace ( "€", "&#128;", $res );
+		$res = str_replace ( " >", " &#62;", $res );
+		$res = str_replace ( "< ", "&#60; ", $res );
+		$res = @ereg_replace ( "&([^#])", "&#38\\1", $res );
+		
+		return $res;
+	}
+	private function __buildMenuNav() {
+		$b = new MenuBuilder ();
+		return XHTMLBuilder::getText ( $b->buildMenu () );
+	}
+	
+	
+	/**
+	 * build top menue
+	 */
+	private function __buildTopMenuNav() {
+		$b = new MenuBuilder ();
+		return XHTMLBuilder::getText ( $b->buildTopMenu () );
+	}
+	
+	public function display() {
+		echo $this->getDisplay ();
+	}
+	public function getDisplay() {
+		$templatePath = $GLOBALS ['ROOT_PATH'] . XHTMLBuilder::$MAIN_TEMPLATE_PATH;
+		assert ( file_exists ( $templatePath ) );
+		$templateDir = substr ( $templatePath, 0, strrpos ( $templatePath, "/" ) );
+		$tpl = new template ( $templateDir );
+		$tpl->set_file ( "display", $templatePath );
+		$tpl->set_var ( "heading_here", $this->_heading );
+		$tpl->set_var ( "onload_here", $this->_onLoadJavascript );
+		$tpl->set_var ( "javascript_here", $this->_javascript );
+		$tpl->set_var ( "menu_here", $this->__buildMenuNav () );
+		$tpl->set_var ( "dynamic_content_here", $this->_content );
+		$tpl->set_var ( "url_root_path", $GLOBALS ['URL_ROOT_PATH'] );
+		$tpl->set_var ( "url_root_path_without_ports", $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] );
+		$tpl->set_var ( "root_path", $GLOBALS ['ROOT_PATH'] );
+		$tpl->set_var ( "site_miage_root_path", $GLOBALS ['SITE_MIAGE_ROOT_PATH'] );
+		$tpl->set_var ( "mediawiki_root_path", $GLOBALS ['MEDIAWIKI_ROOT_PATH'] );
+		$tpl->set_var ( "home_page", $GLOBALS ['URL_ROOT_PATH']);
+		$tpl->set_var ( "top_menu",$this->__buildTopMenuNav());
+		
+		return $tpl->parse ( "out", "display" );
+	}
+}
+
+?>
