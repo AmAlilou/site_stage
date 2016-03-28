@@ -1,0 +1,226 @@
+body{
+	/*color: #3b079b;*/
+	background-image: url('image/fond1.png');
+	font-family: Arial, sans-serif;
+	margin-top: 7px;
+	margin-bottom: 7px;
+	font-size: 13px;
+	text-align: justify;
+}
+
+h1{
+	font-size: 150%;
+}
+
+h2{
+	font-size: 100%;
+}
+
+td.titre{
+	background-color:#0771BB;
+	color: white;
+	height: 14px
+	margin-left: 20px;
+}
+
+a:hover{
+	color: #FFCC33;
+}
+td.dynamic_content{
+	background-color: #FFFFFF;
+	border-bottom: 3px solid #1958b7;
+	border-top: 3px solid #1958b7;
+	border-right: 3px solid #1958b7;
+}
+td.menu_content{
+	background-color: #6677CC;
+	list-style-type: none;
+	text-align: left;
+	border: 3px solid #0771BB;
+	width: 230px;
+}
+
+td.table_edit{
+	margin: 2px;
+	padding-right: 5px;
+	border: thin solid #6495ed;
+	width: 60%;
+}
+
+ul.menu_niv1{
+	margin-left: 2%; 
+	padding-left: 0;
+	color: #3b079b;
+	font: bold 12px'Trebuchet MS', 'Lucida Grande', Arial, sans-serif;
+}
+
+ul.menu_niv1 a{
+	color: white;
+	padding: 1px;
+	font: bold 90% 'Trebuchet MS', 'Lucida Grande', Arial, sans-serif;
+}
+
+ul.menu_niv1 a:active{
+	background-color: #2586d7;
+}
+
+ul.menu_niv1 li{
+	list-style-type: none;
+}
+
+ul.menu_niv2{
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+	font: normal 90% 'Trebuchet MS', 'Lucida Grande', Arial, sans-serif;
+}
+
+ul.menu_niv2 a{
+	display: block;
+	padding: 3px 0;
+	padding-left: 1px;
+	width: 169px;
+	font-size: 10px;
+	text-decoration: none;
+	color: #333333;
+	border-right: 1px solid #1958b7;
+	border-bottom: 1px solid #1958b7;
+	border-top: 1px solid #1958b7;
+	border-left: 7px solid #1958b7;
+}
+
+ul.menu_niv2 a:hover{
+	background-color: #2586d7;
+	border-right: 1px solid #90bade;
+	border-bottom: 1px solid #90bade;
+	border-top: 1px solid #90bade;
+	border-left: 7px solid #90bade;
+	color: #FFFFFF;
+}
+
+ul.menu_niv2 li{
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+	font: normal 90% 'Trebuchet MS', 'Lucida Grande', Arial, sans-serif;
+}
+
+ul.menu_niv3{
+
+}
+
+ul.menu_niv3 a{
+	display: block;
+	padding: 3px 0;
+	padding-left: 1px;
+	width: 169px;
+	font-size: 10px;
+	text-decoration: none;
+	color: #3333CC;
+	border: 0px;
+}
+
+ul.menu_niv3 a:hover{
+	background-color: #6677CC;
+	border: 0px;
+	color: #FFFFFF;
+}
+
+img{
+	margin:0px;
+	padding:0px;
+	border:none;
+}
+
+img.boutonCalendrier{
+	width: 25px; height: 20px; margin: 0px;
+	background: url('image/cal.gif');
+	background-repeat: no-repeat;
+	cursor: pointer;
+}
+
+div.calend{
+	position: relative; 
+	width: 190px; 
+	height: 190px; 
+	z-index: 99; 
+	border: solid 0px #000000;
+	visibility: hidden;
+}
+
+td.dynamic_content{
+	padding: 8px;
+}
+
+li.afaire {
+	color: red;
+}
+
+li.encours {
+	color: orange;
+}
+
+li.atester {
+	color: blue;
+}
+li.teste {
+	color: green;
+}
+
+span.a_valider{
+	font-weight: bold;
+	color: brown;
+}
+
+span.validee{
+	font-weight: bold;
+	color: green;
+}
+
+span.refusee{
+	font-weight: bold;
+	color: red;
+}
+
+span.signatureEntreprise{
+	font-weight: bold;
+	color: blue;
+}
+
+span.signatureUniversite{
+	font-weight: bold;
+	color: grey;
+}
+
+span.terminee{
+	font-weight: bold;
+	color: black;
+}
+
+
+
+table.pme-navigation { 
+	border: #004d9c 0px solid; border-collapse: collapse; border-spacing: 0px; width: 100%; 
+}
+
+th.pme-header	     { 
+	border: #004d9c 1px solid; padding: 4px; background: #ffa500; 
+}
+
+td.pme-key-0, td.pme-value-0, td.pme-help-0, td.pme-navigation-0, td.pme-cell-0,
+td.pme-key-1, td.pme-value-1, td.pme-help-0, td.pme-navigation-1, td.pme-cell-1,
+td.pme-sortinfo, td.pme-filter { 
+	border: #004d9c 1px solid; padding: 3px; 
+}
+
+td.pme-buttons { 
+	text-align: left;   
+}
+
+td.pme-message { 
+	text-align: center; 
+}
+
+td.pme-stats   { 
+	text-align: right;  
+}

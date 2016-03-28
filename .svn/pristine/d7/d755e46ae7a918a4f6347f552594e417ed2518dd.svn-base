@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+  {heading_here}
+    <script type="text/javascript">
+{javascript_here}
+
+function __onload(){
+{onload_here}
+}
+    </script>
+  </head>
+  <body onload="__onload();">
+    <div class="content">
+      <table border="0" cellspacing="0" cellpadding="0" width="100%">
+        <tr style="background-image: url('{url_root_path}/image/bandeau_top2.png'); background-repeat: no-repeat; background-position: center; background-color: transparent;" height="153">
+          <td colspan="2" align="center">&nbsp;</td>
+        </tr>
+
+        <tr>
+          <td class="menu_content" width="20%" valign="top">
+            {menu_here}
+          </td>
+          <td class="dynamic_content" valign="top">
+            {dynamic_content_here}
+          </td>
+        </tr>
+   	  <tr>
+          <td colspan="2" align="right">MIAGe Bordeaux 2007</td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,63 @@
+<?php
+set_include_path(".".PATH_SEPARATOR."..");
+require_once("inc/main.inc.php");
+PagePermission::verifyPagePermission( new PagePermission(PagePermission:: $CONSTRAINT_ETUDIANT_LOGGED));
+
+?>
+<br/>
+<h2>PDF envoy&#233s par les entreprises:</h2>
+
+<!-- Rechercher une proposition -->
+<fieldset>
+  <legend>Recherche</legend>
+    <form action="consultationOffrePDF.php" method="post" enctype="multipart/form-data">
+	  <span><b>Mots cl&#233s :</b></span>
+	  <input type="text" name="mots" size="40">
+	  <input type="hidden" name="action" value="recherche" />
+	  <input type="submit" value="Valider">
+  </form> 
+</fieldset>
+<br />
+<!-- Liste propositions -->
+<fieldset>
+  <legend>Liste des propositions</legend>
+  <br />    
+<?php 
+// ----- Requete SQL de base pour obtenir la liste des propositions disponible ----- //
+$sql = "SELECT id_proposition_pdf, n_file, n_proposition, d_upload, nb_click, resume, mail_resp_prop_pdf, raisonsociale_entreprise FROM propositions, entreprise WHERE entreprise.id_entreprise=propositions.id_entreprise ORDER BY propositions.d_upload desc;";
+$fin = "";
+
+//------ Si une recherche non vide est demandee -----//
+if(isset($_REQUEST["action"]) && ($_REQUEST["action"]=="recherche") && ($_REQUEST["mots"]!="")){
+$mots = addslashes($_REQUEST["mots"]);
+echo "<span><b>R&#233sultat pour \"".stripslashes($mots)."\":</b></span><br/>";
+$sql = "SELECT id_proposition_pdf, n_file, n_proposition, d_upload, nb_click, resume,mail_resp_prop_pdf, raisonsociale_entreprise FROM propositions, entreprise WHERE entreprise.id_entreprise=propositions.id_entreprise AND (n_proposition like \"%$mots%\" OR resume like \"%$mots%\" OR raisonsociale_entreprise like \"%$mots%\") ORDER BY propositions.d_upload desc;";
+$fin = "<br/><span><a href=\"consultationOffrePDF.php\"><b>Retour &#224 la liste compl&#232te.</b></a></span>";
+}
+// ----- Sinon on recherche les propositions disponible ----- //
+$resultat = mysql_query($sql);
+if (mysql_num_rows($resultat)==0) echo "<span>Aucune proposition de disponible pour le moment.</span>";
+else{	
+	echo mysql_num_rows($resultat);
+	echo "<table cellspacing=\"12\" border=\"0\">";
+	echo "<tr>";
+	echo "<td><b>Entreprise</b></td>";
+	echo "<td><b>Proposition</b></td>";
+	echo "<td><b>Resum&#233, mots cl&#233s</b></td>";
+	echo "<td><b>Upload&#233 le</b></td>";
+	echo "<td><b>Contact</b></td>";
+	echo "</tr>";
+	while($propositions = mysql_fetch_array($resultat, MYSQL_ASSOC)){
+		echo "<tr>";
+		echo "<td>".$propositions['raisonsociale_entreprise']."</td>";
+		echo "<td><a href=\"traitementPropositionsPdf.php?a=dl&f=".$propositions['n_file']."\">".$propositions['n_proposition']."</a></td>";
+		echo "<td>".$propositions['resume']."</td>";
+		echo "<td>".$propositions['d_upload']."</td>";
+		echo "<td>".$propositions['mail_resp_prop_pdf']."</td>";		
+		echo "</tr>";
+	}
+	echo "</table>";
+}
+echo $fin;
+?>
+</fieldset>

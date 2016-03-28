@@ -1,0 +1,15 @@
+<?php
+set_include_path(".".PATH_SEPARATOR."..");
+require_once("inc/main.inc.php");
+
+$fo_liste = array();
+$fo_liste[0] = new FOFicheDevenir();
+$pfm = new PostFormManager($fo_liste);
+if (isset($_GET["operation"]) and ($_GET["operation"]==2)){
+	$pfm->setFormObjectResult("Operation","Modification");
+	echo $pfm->manageAndGenerateContent();
+}elseif (isset($_GET["operation"]) and ($_GET["operation"]==1)){
+	$pfm->setFormObjectResult("Operation","Création");
+	echo $pfm->manageAndGenerateContent();
+}else echo XHTMLBuilder::getText("Opération inconnue.");
+?>

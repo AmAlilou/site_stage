@@ -1,0 +1,41 @@
+<?php
+set_include_path(".".PATH_SEPARATOR."..");
+require_once("inc/main.inc.php");
+
+class FOConnexionAdmin extends FormObject{
+    public static $CHAMP_FORM_LOGIN_ADMIN = "identifiant_admin";
+    public static $CHAMP_FORM_PASSWORD_ADMIN = "motdepasse_admin";
+        
+    private $_identadmin;
+    private $_mdpadmin;
+    private $_user=null;
+    
+    public function init(){
+        $this->_identadmin= $_POST[FOConnexionAdmin::$CHAMP_FORM_LOGIN_ADMIN];
+        $this->_mdpadmin = $_POST[FOConnexionAdmin::$CHAMP_FORM_PASSWORD_ADMIN];
+    }
+    
+    public function isValid(){
+        if(!FormObject::isString($this->_identadmin))
+	        $this->setErrorMessage("Erreur : chaine attendue pour le login de connexion !");
+        if(!FormObject::isString($this->_mdpadmin))
+	        $this->setErrorMessage("Erreur : chaîne attendue pour le mot de passe de connexion !");
+         
+        if($this->getErrorMessage() != "")
+            return false;
+            
+        $this->_user = DBConfig::authAdmin($this->_identadmin, $this->_mdpadmin);
+        if($this->_user == null)
+            $this->setErrorMessage("Erreur : login/mot de passe incorrect !<script type=\"text/javascript\">setTimeout(\"window.location.href = '".$GLOBALS['URL_ROOT_PATH']."/connexionAdmin.php';\", 2000);</script>");
+
+        return ($this->getErrorMessage() == "");
+    }
+    
+    public function process(){
+        assert($this->_user != null);
+        SessionManager::registerAdmin($this->_user);
+        $this->setOKMessage("Connexion réussie");
+        header('Location: '.$GLOBALS['URL_ROOT_PATH'].'/admin/accueilAdmin.php');
+    }
+}
+?>

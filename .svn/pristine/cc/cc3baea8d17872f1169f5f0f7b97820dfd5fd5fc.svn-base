@@ -1,0 +1,148 @@
+<?php
+set_include_path(".".PATH_SEPARATOR."..");
+require_once("inc/main.inc.php");
+PagePermission::verifyPagePermission( new PagePermission(PagePermission::$CONSTRAINT_ADMIN_LOGGED));
+
+$CONVERSION_ETAT_FICHE_CSS = array(
+            DBFicheStage::$ETAT_STAGE_ATTENTE_VALIDATION => "a_valider",
+            DBFicheStage::$ETAT_STAGE_VALIDEE => "validee",
+            DBFicheStage::$ETAT_STAGE_CONVENTIONNEE => "conventionnee",
+            DBFicheStage::$ETAT_STAGE_TERMINEE => "terminee",
+            DBFicheStage::$ETAT_STAGE_REFUSEE => "refusee");
+
+$CONVERSION_ETAT_PROPOSITION_CSS = array(
+            DBPropositionStage::$ETAT_PROPOSITION_STAGE_ATTENTE_VALIDATION => "a_valider",
+            DBPropositionStage::$ETAT_PROPOSITION_STAGE_VALIDEE => "validee",
+            DBPropositionStage::$ETAT_PROPOSITION_STAGE_TERMINEE => "terminee",
+            DBPropositionStage::$ETAT_PROPOSITION_STAGE_REFUSEE => "refusee");
+
+$ORDRE_ETATS_FICHE = array(
+            DBFicheStage::$ETAT_STAGE_ATTENTE_VALIDATION => 1,
+            DBFicheStage::$ETAT_STAGE_VALIDEE => 2,
+            DBFicheStage::$ETAT_STAGE_CONVENTIONNEE => 3,
+            DBFicheStage::$ETAT_STAGE_TERMINEE => 4,
+            DBFicheStage::$ETAT_STAGE_REFUSEE => 5);
+            
+$ORDRE_ETATS_PROPOSITION = array(
+            DBPropositionStage::$ETAT_PROPOSITION_STAGE_ATTENTE_VALIDATION => 1,
+            DBPropositionStage::$ETAT_PROPOSITION_STAGE_VALIDEE => 2,
+            DBPropositionStage::$ETAT_PROPOSITION_STAGE_TERMINEE => 3,
+            DBPropositionStage::$ETAT_PROPOSITION_STAGE_REFUSEE => 4);
+            
+// Convertit le numéro d'un état sélectionné, en le libellé correspondant
+$CONVERSION_ETAT_FICHE = array(
+            1 => DBFicheStage::$ETAT_STAGE_ATTENTE_VALIDATION,
+            2 => DBFicheStage::$ETAT_STAGE_VALIDEE,
+            3 => DBFicheStage::$ETAT_STAGE_REFUSEE,
+            4 => DBFicheStage::$ETAT_STAGE_CONVENTIONNEE,
+            5 => DBFicheStage::$ETAT_STAGE_TERMINEE);
+$CONVERSION_ETAT_PROPOSITION = array(            
+            1 => DBPropositionStage::$ETAT_PROPOSITION_STAGE_ATTENTE_VALIDATION,
+            2 => DBPropositionStage::$ETAT_PROPOSITION_STAGE_VALIDEE,
+            3 => DBPropositionStage::$ETAT_PROPOSITION_STAGE_REFUSEE,
+            4 => "----",
+            5 => DBPropositionStage::$ETAT_PROPOSITION_STAGE_TERMINEE);
+
+// Affichage de toutes les fiches/propositions "par défaut"
+if(!isset($_GET['type_document'])){
+    $_GET['type_document'] = "";
+    $_GET['type_stage'] = "";
+    $_GET['etat'] = "";
+    $_GET['entreprise'] = "";
+}
+
+$fb = new FormBuilder("tableauBordStage.php", "get");
+?>
+<center><h2>Tableau de bord des Fiches/Propositions de stage</h2></center>
+<fieldset>
+  <legend>Filtres de sélection</legend>
+<?php
+
+// CRITERES DE RECHERCHE
+$fb->beginForm();
+
+$typeDocument = array(1 => "Proposition de stage", 2 => "Fiche de stage");
+$fb->addSelectMenuField("Type de document", "type_document", false, Enumeration::getSelectablesArray($typeDocument), "Tous", "", "", false, "onchange='refreshPage();'");
+echo "<br/>";
+
+$fb->addSelectMenuField("Type de stage", "type_stage", false, DBTypeStage::getRecords("", "", DBConfig::getConfigValue("ANNEE PROMO")), "Tous types de stages", "", "", false, "onchange='refreshPage();'");
+echo "<br/>";
+
+$etats = array(1 => "A Valider", 2 => "Validé", 3 => "Refusé", 4 => "Conventionné", 5 => "Terminé");
+$fb->addSelectMenuField("Etat", "etat", false, Enumeration::getSelectablesArray($etats), "Tous les états", "", "", false, "onchange='refreshPage();'");
+echo "<br/>";
+
+$fb->addSelectMenuField("Entreprise", "entreprise", false, DBEntreprise::getEnumeration(false), "Toutes les entreprises", "", "", false, "onchange='refreshPage();'");
+echo "<br/>";
+?>
+  Légende :<br/>
+  <span class="a_valider">/ A Valider</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <span class="validee">/ Validé</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <span class="refusee">/ Refusé</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <span class="conventionnee">/ Conventionné</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <span class="terminee">/ Terminé</span>
+<?php
+$fb->endForm();
+
+echo "</fieldset>\n";
+
+
+if((isset($_GET['type_document'])) && (($_GET['type_document'] == "") || ($_GET['type_document'] == 1))){
+    $etatRecherche = (($_GET["etat"] != "")?$CONVERSION_ETAT_PROPOSITION[$_GET["etat"]]:"");
+    $propositionsStageTMP = DBPropositionStage::getRecords("", "", "", "", "", "", "", "", "", "", "", $etatRecherche, "", "", DBConfig::getConfigValue("ANNEE PROMO"), "", "", "", "", "", "", $_GET["entreprise"]);
+    
+    $propositionsStage = array();
+    foreach($propositionsStageTMP as $p)
+        if(count(DBConcerne::getRecords($_GET["type_stage"], $p->getIdPropositionStage())) != 0)
+            $propositionsStage[count($propositionsStage)] = $p;
+    
+    
+    $propositionsStage = Enumeration::sort($propositionsStage, '$GLOBALS[\'ORDRE_ETATS_FICHE\'][$a->getEtat()]."[".(($a->getEntreprise()==null)?"":$a->getEntreprise()->getRaisonsocialeEntreprise())."] ".$a->getIntitule()');
+} else {
+    $propositionsStage = array();
+}
+
+if((isset($_GET['type_document'])) && (($_GET['type_document'] == "") || ($_GET['type_document'] == 2))){
+    $etatRecherche = (($_GET["etat"] != "")?$CONVERSION_ETAT_FICHE[$_GET["etat"]]:"");
+    $fichesStage = DBFicheStage::getRecords("", $_GET["type_stage"], "", DBConfig::getConfigValue("ANNEE PROMO"), "", "", "", $_GET["entreprise"], "", "", "", "", "", "", "", "", "", "", "", "", "", "", $etatRecherche);
+    $fichesStage = Enumeration::sort($fichesStage, '$GLOBALS[\'ORDRE_ETATS_FICHE\'][$a->getEtatStage()].(($a->getEtudiant()==null)?"":$a->getEtudiant()->getNomEtudiant().$a->getEtudiant()->getPrenomEtudiant())."[".(($a->getEntreprise()==null)?"":$a->getEntreprise()->getRaisonsocialeEntreprise())."] ".$a->getIntituleStage()');
+} else {
+    $fichesStage = array();
+}
+
+
+
+
+// Affichage des propositions correspondant aux critères
+if(count($propositionsStage) != 0){
+    echo "<fieldset>
+  <legend>Propositions de stage</legend>
+  <ul>
+";
+    foreach($propositionsStage as $prop){
+        echo "<li><a href='#' onclick=\"window.open('".$GLOBALS['URL_ROOT_PATH']."/popups/popUpSujetProposition.php?idProposition=".$prop->getIdPropositionStage()."','','menubar=no,toolbar=no,location=no');\"><span class=\"".$CONVERSION_ETAT_PROPOSITION_CSS[$prop->getEtat()]."\">[".(($prop->getEntreprise()==null)?"":$prop->getEntreprise()->getRaisonsocialeEntreprise())."] ".$prop->getIntitule()."</span></a></li>\n";
+    }
+    
+    echo "</ul>
+</fieldset>\n";
+}
+
+// Affichage des fiches correspondant aux critères
+if(count($fichesStage) != 0){
+    echo "<fieldset>
+  <legend>Fiches de stage</legend>
+  <ul>
+";
+
+    foreach($fichesStage as $fiche){
+        echo "<li><a href='#' onclick=\"window.open('".$GLOBALS['URL_ROOT_PATH']."/popups/popUpSujetStage.php?idStage=".$fiche->getIdStage()."','','menubar=no,toolbar=no,location=no');\"><span class=\"".$CONVERSION_ETAT_FICHE_CSS[$fiche->getEtatStage()]."\">[".(($fiche->getEtudiant()==null)?"":$fiche->getEtudiant()->getNomEtudiant()." ".$fiche->getEtudiant()->getPrenomEtudiant())."][".(($fiche->getEntreprise()==null)?"":$fiche->getEntreprise()->getRaisonsocialeEntreprise())."] ".$fiche->getIntituleStage()."</span></a></li>\n";
+    }
+
+    echo "</ul>
+</fieldset>\n";
+}
+
+DBConnector::getDBConnector()->forceConnexionPersistance(false);
+
+$fb->generateXHTML();
+?>

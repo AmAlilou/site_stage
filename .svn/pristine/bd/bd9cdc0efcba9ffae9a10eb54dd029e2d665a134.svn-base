@@ -1,0 +1,237 @@
+<?php
+set_include_path(".".PATH_SEPARATOR."..");
+require_once("inc/main.inc.php");
+PagePermission::verifyPagePermission( new PagePermission(PagePermission::$CONSTRAINT_ADMIN_LOGGED));
+
+
+//telechargement de fichier
+if (isset($_GET["action"])){
+	if($_GET["action"]=="dl"){
+		if(isset($_GET["f"])){
+			//on verifie que le fichier est bien dans la bdd
+			$sql = "SELECT id, n_rapport FROM rapports WHERE n_file=\"".$_GET["f"]."\";";
+			$resultat = mysql_query($sql);
+			if (mysql_num_rows($resultat)==1){
+				$rapports = mysql_fetch_array($resultat, MYSQL_ASSOC);
+				
+				$rep = "../rapports/";
+				$file = $_GET['f'];					
+				header("location: ".$rep.$file);		
+				exit();
+			}
+			else{
+				echo "<br /><br /><span><b>Le fichier n'existe pas.</b></span><br />";
+				echo "<span><a href=\"javascript:history.back()\">Retour</a></span>";		
+				exit();
+			}
+		}	
+		else{
+			echo "<br /><br /><span><b>Erreur lors du telechargement du fichier.</b></span><br />";
+			echo "<span><a href=\"javascript:history.back()\">Retour</a></span>";
+			exit();
+		}
+	}
+}
+
+
+
+//Upload de rapport (récupération des infos et traitement)
+if (isset($_REQUEST["action"])){
+	if($_REQUEST["action"]=="upload"){
+		if(is_uploaded_file($_FILES['f_pdf']['tmp_name'])){
+			//on verifie que le fichier envoyé est bien au format pdf
+			$type = $_FILES['f_pdf']['type'];
+			if(!strstr($type, 'pdf')){
+			  echo "<br /><br /><span><b>ERREUR: Le rapport doit être au format pdf.</b></span><br />";
+			  echo "<span><a href=\"javascript:history.back()\">Retour</a></span>";
+			  exit();
+			}	
+			else{		
+				$n_rapport = str_replace(".pdf","",$_FILES['f_pdf']['name']);
+				$rep = "../rapports/";
+				$n_file = md5(uniqid(rand())).".pdf";				//on donne un nom unique au pdf
+				move_uploaded_file($_FILES['f_pdf']['tmp_name'],$rep.$n_file);
+			
+				$resume = addslashes($_REQUEST['resume']);
+				$d_upload = date("Y-m-d");
+				$promo = $_REQUEST['promotion'];
+				$sql = "INSERT INTO rapports VALUES (\"NULL\",\"$n_file\",\"$n_rapport\",\"$d_upload\",0,\"$promo\",\"$resume\");";
+				mysql_query($sql);
+				
+				header("Location: listeRapports.php");
+				exit();
+			}
+		}
+		else{
+			echo "<br /><br /><span><b>Erreur lors de l'envoi du fichier.</b></span><br />";
+			echo "<span><a href=\"javascript:history.back()\">Retour</a></span>";
+			exit();
+		}
+	}
+}
+	
+//demande de confirmation de suppression de rapport
+if (isset($_GET["action"])){
+	if($_GET["action"]=="dem_suppr"){
+		if (isset($_GET["id"])){
+			
+			$sql = "SELECT n_rapport FROM rapports WHERE id=".$_GET["id"].";";
+			$resultat = mysql_query($sql);
+			
+			if (mysql_num_rows($resultat) != 0) {
+				$rapports = mysql_fetch_array($resultat,MYSQL_ASSOC);
+			 
+				echo "<center><h2>Confirmation de suppression</h2></center>";
+				echo "<br /><br />";
+				echo "<center><span>Voulez vous vraiment supprimer le fichier \"".$rapports['n_rapport']."\" ?</span></center>";
+				echo "<br /><br />";
+				echo "<form action=\"traitementRapports.php\" method=\"post\">";
+				echo "<input type=\"hidden\" name=\"action\" value=\"conf_suppr\" />";
+				echo "<input type=\"hidden\" name=\"id\" value=\"".$_GET["id"]."\" />";
+				echo "<center><input type=\"submit\" value=\"Valider\">";
+				echo "          <input type=\"button\" onClick=\"javascript:history.back()\" value=\"Annuler\"></center>";
+				echo "</form>";
+			
+			}
+			else {
+				echo "Le fichier n'existe pas";
+				echo "<br /><a href=\"listeRapports.php\">Retour</a>";
+			}
+			exit();
+			
+		}
+		else {
+			echo "<span>Erreur: nom non defini</span>";
+			exit();
+		}
+	}
+}
+
+
+//suppression de rapport
+if (isset($_REQUEST["action"])){
+	if($_REQUEST["action"]=="conf_suppr"){
+		if (isset($_REQUEST["id"])){
+			$id =$_REQUEST["id"];
+			
+			$sql = "SELECT n_file FROM rapports WHERE id=$id;";
+			$resultat = mysql_query($sql);
+			$rapports = mysql_fetch_array($resultat, MYSQL_ASSOC);
+			$file = "../rapports/".$rapports['n_file'];
+			
+			$sql = "DELETE FROM rapports WHERE id=$id;";
+			$resultat = mysql_query($sql);
+									
+			if (unlink($file)) {
+				header("Location: listeRapports.php");
+			}
+			else {
+				echo "<span>Erreur lors de la suppression du fichier. Le fichier pdf n'existait peut être d&#233jà plus</span><br/>";
+				echo "<a href=\"listeRapports.php\">Retour aux rapports.</a>";	
+				exit();
+			}
+		}
+	}
+}
+
+
+
+
+//formulaire modification des infos d'un rapport
+if (isset($_REQUEST["action"])){
+	if($_REQUEST["action"]=="dem_modif"){
+		if (isset($_REQUEST["id"])){
+			$id =$_REQUEST["id"];
+			
+			$sql = "SELECT n_rapport, promo, resume FROM rapports WHERE id=$id;";
+			$resultat = mysql_query($sql);
+			$rapports = mysql_fetch_array($resultat, MYSQL_ASSOC);
+			
+			echo "<center><h2>Modification des informations du rapport :\"".$rapports['n_rapport']."\"</h2></center>";
+			
+			echo"<br />";
+			echo "<form action=\"traitementRapports.php\" method=\"post\">";
+			echo "<span><b>Nom du rapport :</b></span>";
+			echo "<br />";
+			echo "<input type=\"text\" name=\"n_rapport\" size=\"54\" value=\"".$rapports['n_rapport']."\">";
+			echo "<br /><br />";
+			echo "<span><b>Promotion : </b></span>";
+			echo "<select name=\"promotion\">";
+			if ($rapports['promo']=="L3"){
+				echo "<option selected>L3</option>";
+			}
+			else{
+				echo "<option>L3</option>";
+			}
+			if ($rapports['promo']=="M1"){
+				echo "<option selected>M1</option>";
+			}
+			else{
+				echo "<option>M1</option>";
+			}
+			if ($rapports['promo']=="M2"){
+				echo "<option selected>M2</option>";
+			}
+			else{
+				echo "<option>M2</option>";
+			}
+			echo "</select>";
+			echo "<br /><br />";
+			echo "<span><b>R&#233sum&#233, mots cl&#233s (optionnel) :</b></span>";
+			echo "<br />";
+			echo "<textarea name=\"resume\" rows=\"5\" cols=\"40\">".$rapports['resume']."</textarea>";
+			echo "<br /><br />";
+			echo "<input type=\"hidden\" name=\"action\" value=\"conf_modif\" />";
+			echo "<input type=\"hidden\" name=\"id\" value=\"".$_REQUEST["id"]."\" />";
+			echo "<input type=\"submit\" value=\"Valider\">";
+			echo "          <input type=\"button\" onClick=\"javascript:history.back()\" value=\"Annuler\">";
+			echo "</form> ";
+			exit();
+		}
+		else{
+			echo "<br /><br /><span><b>Erreur: rapport introuvable.</b></span><br />";
+			echo "<span><a href=\"javascript:history.back()\">Retour</a></span>";
+			exit();
+		}
+	}
+}
+
+
+
+//modification des infos d'un rapport
+if (isset($_REQUEST["action"])){
+	if($_REQUEST["action"]=="conf_modif"){
+		if (isset($_REQUEST["id"])){
+			$id =$_REQUEST["id"];
+			if ($_REQUEST["n_rapport"] ==""){
+				echo "<br /><br /><span><b>Erreur: le nom du rapport ne peut pas être null.</b></span><br />";
+				echo "<span><a href=\"javascript:history.back()\">Retour</a></span>";
+				exit();			
+			}
+			
+			$resume = addslashes($_REQUEST['resume']);
+			$n_rapport = $_REQUEST['n_rapport'];
+			// on enleve les caractères spéciaux du nom du fichier
+			$interdit=array(";",",",":","!","?","/","&",'\"',"\'","(",")","»","« ","\n","\r",'"');
+			foreach ($interdit as $test){
+				$n_rapport=str_replace($test,"",$n_rapport);
+		
+			}
+			
+			$n_rapport = addslashes($n_rapport);
+			$promo = $_REQUEST['promotion'];
+			$sql = "UPDATE rapports SET n_rapport=\"".$n_rapport."\", promo=\"".$promo."\", resume=\"".$resume."\" WHERE id=".$id.";";
+			mysql_query($sql);
+			header("Location: listeRapports.php");
+			exit();				
+		}
+		else{
+			echo "<br /><br /><span><b>Erreur: rapport introuvable.</b></span><br />";
+			echo "<span><a href=\"javascript:history.back()\">Retour</a></span>";
+			exit();
+		}
+	}
+}
+
+
+?>

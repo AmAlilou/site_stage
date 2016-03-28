@@ -1,0 +1,11 @@
+<?php
+set_include_path(".");
+require_once("inc/main.inc.php");
+
+if(SessionManager::isSomeoneLogged()){
+    SessionManager::disconnectUsers();
+    echo "D&#233;connexion effectu&#233;e avec succ&#232;s !";
+}
+else
+    echo "Vous n'&#234;tes pas connect&#233; !";
+?>
