@@ -3,7 +3,7 @@
 set_include_path(".");
 require_once("inc/main.inc.php");
 
-echo dfklsqjfklsdjflkjlk;
+echo dfklsfghfghfghfghgfdhffgqjfklsdjflkjlk;
 
 ?>
 <!-- <a href="fonctionnalites.php">Voir les fonctionnalités du site</a> -->
