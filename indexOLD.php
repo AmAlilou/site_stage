@@ -3,8 +3,10 @@
 set_include_path(".");
 require_once("inc/main.inc.php");
 
+echo dfklsqjfklsdjflkjlk;
+
 ?>
-<!-- <a href="fonctionnalites.php">Voir les fonctionnalités du site</a> -->
+<!-- <a href="fonctionnalites.php">Voir les fonctionnalitÃ©s du site</a> -->
 <br/>
 <h1>Les stages &agrave; la MIAGe</h1>
 Bienvenue sur le site des stages de la MIAGe.<br/><br/>
