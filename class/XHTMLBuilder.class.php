@@ -30,8 +30,11 @@ function writeMail(txt, loginArray, serverArray){
     <link href="' . (isset ( $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] ) ? $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] : $GLOBALS ['URL_ROOT_PATH']) . '/style/styles.css" type="text/css" rel="stylesheet"/>
     <link href="' . (isset ( $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] ) ? $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] : $GLOBALS ['URL_ROOT_PATH']) . '/style/bootstrap/plugins/font-awesome/css/font-awesome.min.css" type="text/css" rel="stylesheet"/>
     <link href="' . (isset ( $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] ) ? $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] : $GLOBALS ['URL_ROOT_PATH']) . '/gnoocalendar.css" type="text/css" rel="stylesheet"/>
-	<script src="' . (isset ( $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] ) ? $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] : $GLOBALS ['URL_ROOT_PATH']) . '/style/bootstrap/js/bootstrap.min.js" type="text/javascript"/>
-    ';
+	<script src="' . (isset ( $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] ) ? $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] : $GLOBALS ['URL_ROOT_PATH']) . '/js/jquery-1.9.1.min.js" type="text/javascript"></script>	
+	<script src="' . (isset ( $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] ) ? $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] : $GLOBALS ['URL_ROOT_PATH']) . '/style/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>	
+	<script src="' . (isset ( $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] ) ? $GLOBALS ['URL_ROOT_PATH_WITHOUT_PORTS'] : $GLOBALS ['URL_ROOT_PATH']) . '/js/functions.js" type="text/javascript"></script>	
+						
+    		';
 	}
 	public static function getInstance() {
 		if (XHTMLBuilder::$_instance == null)
@@ -88,7 +91,7 @@ function writeMail(txt, loginArray, serverArray){
 		$res = str_replace ( "â€™", "&#39;", $res ); // '
 		$res = str_replace ( "â‚¬", "&#128;", $res ); // €
 		$res = str_replace ( "Ã", "&#224;", $res ); // à
-		                                         
+		                                            
 		// Caractères spéciaux "non unicode"
 		$res = str_replace ( "É", "&#201;", $res );
 		$res = str_replace ( "é", "&#233;", $res );
@@ -127,7 +130,6 @@ function writeMail(txt, loginArray, serverArray){
 		return XHTMLBuilder::getText ( $b->buildMenu () );
 	}
 	
-	
 	/**
 	 * build top menue
 	 */
@@ -135,6 +137,12 @@ function writeMail(txt, loginArray, serverArray){
 		$b = new MenuBuilder ();
 		return XHTMLBuilder::getText ( $b->buildTopMenu () );
 	}
+	
+	private function __buildContactOption() {
+		$b = new MenuBuilder ();
+		return XHTMLBuilder::getText ( $b->__buildContact() );
+	}
+	
 	
 	public function display() {
 		echo $this->getDisplay ();
@@ -155,8 +163,9 @@ function writeMail(txt, loginArray, serverArray){
 		$tpl->set_var ( "root_path", $GLOBALS ['ROOT_PATH'] );
 		$tpl->set_var ( "site_miage_root_path", $GLOBALS ['SITE_MIAGE_ROOT_PATH'] );
 		$tpl->set_var ( "mediawiki_root_path", $GLOBALS ['MEDIAWIKI_ROOT_PATH'] );
-		$tpl->set_var ( "home_page", $GLOBALS ['URL_ROOT_PATH']);
-		$tpl->set_var ( "top_menu",$this->__buildTopMenuNav());
+		$tpl->set_var ( "home_page", $GLOBALS ['URL_ROOT_PATH'] );
+		$tpl->set_var ( "top_menu", $this->__buildTopMenuNav () );
+		$tpl->set_var ( "contact_option", $this->__buildContactOption() );
 		
 		return $tpl->parse ( "out", "display" );
 	}

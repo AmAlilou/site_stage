@@ -44,18 +44,17 @@ class MenuBuilder {
 	}
 		
 	// <li><a onclick=showPopupForm("Secretariat","' . $mailsSecretariat . '")>Secrétariat</a></li>
-	private function __buildContact() {
+	public function __buildContact() {
 		$mailsRespStage = DBConfig::getConfigValue ( "MAIL ADMINISTRATEURS" );
+	//	$mailsRespStage ='alilou.amine2012@gmail.com';
 		$mailsSecretariat = DBConfig::getConfigValue ( "MAIL SECRETARIAT" );
 		// remplacement de la virgule pour l'envoi à plusieurs destinataires'
 		$mailsRespStage = str_replace ( ",", ";", $mailsRespStage );
-		return '  <li class=\"dropdown\"> 
-					<a href=\"javascript:void(0);\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">Contact
-				    <ul  class=\"dropdown-menu\">
-				      <li><a  onclick=showPopupForm("Responsable_des_stages","' . $mailsRespStage . '")>Responsable des stages</a></li>
-				      <li><a href="' . $GLOBALS ['URL_ROOT_PATH'] . '/affichePermanences.php">Permanences</a></li>
-				    </ul>
-  				</li>';
+		
+		return ' <option value=' . $mailsRespStage . '>Responsable des stages</option>
+				 <option value=' . $mailsSecretariat . '>Secrétariat</option>
+				 <option value="Permanences">Permanences</option>';
+		
 	}
 	
 	private function __buildAjoutProposition() {

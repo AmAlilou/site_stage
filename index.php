@@ -2,7 +2,12 @@
 <?php
 // set_include_path(".");
 require_once ("inc/main.inc.php");
+
+
 ?>
+
+
+
 <!-- <a href="fonctionnalites.php">Voir les fonctionnalités du site</a> -->
 <br />
 

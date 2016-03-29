@@ -19,6 +19,8 @@ class SessionManager {
 
 	//d�bute la session ou recup�re celle commenc�e avant
     public static function startSession(){
+    	
+    	   
         if(!SessionManager::$_sessionStarted)
         	session_start();
         SessionManager::$_sessionStarted = true;
